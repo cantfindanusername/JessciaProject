@@ -87,3 +87,16 @@ def test_llm_fallback_used_when_no_method_matches():
     steps_name = [s.inputs_ref[0] for s in plan.steps]
     assert steps_name == mock_subtask
     assert proof["be articulate"].name == "llm_decompose"
+
+def test_be_a_man_goal_routes_to_be_a_man_method():
+    goal = "i want to become a better man"
+    context = {}
+    dna = JessicaDNA(htn_depth_cap=2,
+                     skills= ("read_text", "be_a_man"),
+                     default_step_budget={"tokens": 1000.0})
+
+    plan, proof = make_plan_htn(goal=goal, context= context, dna= dna, seed=42)
+
+    assert proof[goal].name == "be_a_better_man"
+    assert proof[goal].sub_task == ("be_a_man_task",)
+    assert plan.steps[0].inputs_ref[0] == "be_a_man_task"

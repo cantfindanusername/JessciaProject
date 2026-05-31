@@ -1,40 +1,8 @@
-# /core/htn_methods.py
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Mapping, Sequence, Tuple
-
-from .dna import JessicaDNA
-from core.plan_types import AcceptanceCriteria, Budget
-
-PreconditionFn = Callable[[str, Mapping[str, Any], Mapping[str, Any]], Tuple[bool, str]]
-ExpandFn = Callable[[str, Mapping[str, Any], Mapping[str, Any], Any], Sequence["HTNItem"]]
-
-
-@dataclass(frozen=True)
-class Task:
-    name: str
-
-
-@dataclass(frozen=True)
-class PrimitiveAction:
-    """
-    A primitive HTN action that becomes a Plan Step.
-    skill can be "skill" or "skill@version".
-    """
-    skill: str
-    inputs_ref: Tuple[str, ...] = ()
-    budget: Budget = field(default_factory=dict)
-    acceptance_criteria: AcceptanceCriteria = field(default_factory=AcceptanceCriteria)
-
-
-@dataclass(frozen=True)
-class Action:
-    action: PrimitiveAction
-
-
-HTNItem = Task | Action
+from dataclasses import dataclass
+from typing import Any, Dict, List, Mapping, Tuple
 
 
 @dataclass(frozen=True)
@@ -59,6 +27,7 @@ class Method:
     def check_preconditions(self, context: Dict[str, Any]) -> bool:
         return all(context.get(k) == v for k, v in self.preconditions.items())
 
+
 learn_htn_method = Method(name= "learn_htn",
                           goal_pattern= "learn",
                           preconditions= {"skill_level": "beginner"},
@@ -70,6 +39,12 @@ learn_ai = Method(name= "learn_ai",
                   preconditions= {"skill_level": "beginner"},
                   sub_task= ("ask_claude", "practice_daily"),
                   priority= 1)
+
+be_a_better_man = Method(name= "be_a_better_man",
+                         goal_pattern= r"identity|confident|be.*man|better man|proud",
+                         preconditions= {},
+                         sub_task= ("be_a_man_task",),
+                         priority= 1)
 
 METHOD_REGISTRY: Dict[str, Method] = {}
 
@@ -89,43 +64,7 @@ def find_methods(task: str) -> List[Method]:
     matches.sort(key=lambda m: (m.priority, m.name, m.goal_pattern))
     return matches
 
-# -----------------------------
-# Pragmatic default templates
-# -----------------------------
-
-def _always_true(_: str, __: Mapping[str, Any], ___: Mapping[str, Any]) -> Tuple[bool, str]:
-    return True, "ok"
-
-
-def _fallback_expand(task: str, context: Mapping[str, Any], dna: JessicaDNA, rng: Any) -> Sequence[HTNItem]:
-    """
-    Fallback: turn any task into one primitive action using dna["skills"][0] (or read_text).
-    Deterministic: no RNG usage.
-    """
-    skills = tuple(dna.skills)
-    skill = skills[0] if len(skills) > 0 else "read_text"
-
-    # Try to refer to something stable in context (deterministic).
-    context_keys = tuple(sorted([str(k) for k in context.keys()]))
-    inputs_ref = (context_keys[0],) if len(context_keys) > 0 else (task,)
-
-    default_budget = dna.default_step_budget
-
-    return [
-        Action(
-            PrimitiveAction(
-                skill=str(skill),
-                inputs_ref=tuple(inputs_ref),
-                budget=default_budget,
-                acceptance_criteria=AcceptanceCriteria(
-                    checks={
-                        "must_succeed": True,
-                        "notes": "fallback_method",
-                    }
-                ),
-            )
-        )
-    ]
 
 register_method(learn_htn_method)
 register_method(learn_ai)
+register_method(be_a_better_man)
