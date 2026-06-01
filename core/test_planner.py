@@ -98,5 +98,5 @@ def test_be_a_man_goal_routes_to_be_a_man_method():
     plan, proof = make_plan_htn(goal=goal, context= context, dna= dna, seed=42)
 
     assert proof[goal].name == "be_a_better_man_method"
-    assert proof[goal].sub_task == ("be_a_man_task",)
-    assert plan.steps[0].inputs_ref[0] == "be_a_man_task"
+    assert proof[goal].sub_task == ("be_a_man_skill_task",)
+    assert plan.steps[0].inputs_ref[0] == "be_a_man_skill_task"
