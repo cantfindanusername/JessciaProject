@@ -4,9 +4,9 @@ from skills.registry import register_skill
 
 
 class ReadTextSkill:
-    name = "read_text"
+    name = "read_text_skill"
     spec = SkillSpec(
-        name="read_text",
+        name="read_text_skill",
         version="1.0",
         supported_task_types=["text"],
         description="Formats and returns text, no side effects."

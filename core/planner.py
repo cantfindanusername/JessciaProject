@@ -1,10 +1,10 @@
 import hashlib
 import random
 import json
-from typing import Any, Mapping, Sequence, Dict, List, Tuple
+from typing import Any, Optional, Dict, List, Tuple
 
 from .dna import JessicaDNA
-from .htn_methods import METHOD_REGISTRY, ProofStep
+from .htn_methods import  ProofStep, find_methods, Method
 from .llm_client import decompose_goal_with_llm
 from .plan_types import Plan, Step, PlanId, StepId, AcceptanceCriteria, Dependencies, BudgetCaps
 
@@ -41,6 +41,19 @@ def primitive_to_step(task: str,
                 acceptance_criteria= acceptance_criteria,
                 depends_on= depend_on)
 
+def _try_methods(task: str, context: Dict[str, Any], rng: random.Random) -> Optional[Method]:
+    candidates = find_methods(task, context)
+    if not candidates:
+        return None
+
+    best_priority = candidates[0].priority
+    tops = [m for m in candidates if m.priority == best_priority]
+
+    if len(tops) == 1:
+        return tops[0]
+
+    tops = sorted(tops, key=lambda m: m.name)
+    return rng.choice(tops)
 
 def make_plan_htn(goal: str,
                   context: Dict[str, Any],
@@ -58,8 +71,6 @@ def make_plan_htn(goal: str,
     budget_caps = BudgetCaps(caps= dna.default_plan_budget_cap)
 
     while len(agenda) > 0:
-        highest_priority_so_far = 100
-        best_method = []
         task, ancestry = agenda.pop(0)
 
         if task in set(dna.forbidden_skills):
@@ -75,24 +86,7 @@ def make_plan_htn(goal: str,
             steps.append(step)
             continue
 
-        for name, method in METHOD_REGISTRY.items():
-            if method.matches(task) and method.check_preconditions(context):
-                if method.priority < highest_priority_so_far:
-                    highest_priority_so_far = method.priority
-                    best_method = [method]
-
-                elif method.priority == highest_priority_so_far:
-                    best_method.append(method)
-
-        if len(best_method) > 1:
-            best_method.sort(key=lambda x: (x.name))
-            chosen = rng.choice(best_method)
-
-        elif len(best_method) == 1:
-            chosen = best_method[0]
-
-        else:
-            chosen = None
+        chosen = _try_methods(task, context, rng)
 
         if chosen is not None:
             agenda = [(t, ancestry + 1) for t in chosen.sub_task] + agenda

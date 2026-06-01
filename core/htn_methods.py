@@ -28,19 +28,19 @@ class Method:
         return all(context.get(k) == v for k, v in self.preconditions.items())
 
 
-learn_htn_method = Method(name= "learn_htn",
+learn_htn_method = Method(name= "learn_htn_method",
                           goal_pattern= "learn",
                           preconditions= {"skill_level": "beginner"},
                           sub_task= ("read_docs", "trace_code", "rewrite_function"),
                           priority= 1)
 
-learn_ai = Method(name= "learn_ai",
+learn_ai_method = Method(name= "learn_ai_method",
                   goal_pattern= "learn",
                   preconditions= {"skill_level": "beginner"},
                   sub_task= ("ask_claude", "practice_daily"),
                   priority= 1)
 
-be_a_better_man = Method(name= "be_a_better_man",
+be_a_better_man_method = Method(name= "be_a_better_man_method",
                          goal_pattern= r"identity|confident|be.*man|better man|proud",
                          preconditions= {},
                          sub_task= ("be_a_man_task",),
@@ -53,12 +53,12 @@ def register_method(method: Method) -> None:
     METHOD_REGISTRY[method.name] = method
 
 
-def find_methods(task: str) -> List[Method]:
+def find_methods(task: str, context: Dict[str, Any]) -> List[Method]:
     matches: List[Method] = []
     # Deterministic iteration: sort by pattern string.
     for pattern in sorted(METHOD_REGISTRY.keys()):
-        for m in METHOD_REGISTRY[pattern]:
-            if m.matches(task):
+        for m in [METHOD_REGISTRY[pattern]]:
+            if m.matches(task) and m.check_preconditions(context):
                 matches.append(m)
     # Deterministic tie-break.
     matches.sort(key=lambda m: (m.priority, m.name, m.goal_pattern))
@@ -66,5 +66,5 @@ def find_methods(task: str) -> List[Method]:
 
 
 register_method(learn_htn_method)
-register_method(learn_ai)
-register_method(be_a_better_man)
+register_method(learn_ai_method)
+register_method(be_a_better_man_method)

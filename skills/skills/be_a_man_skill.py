@@ -6,8 +6,8 @@ from core.llm_client import call_llm
 
 
 class BeAManSkill:
-    name = "be_a_man"
-    spec = SkillSpec(name="be_a_man",
+    name = "be_a_man_skill"
+    spec = SkillSpec(name="be_a_man_skill",
                      version="1.0",
                      supported_task_types= ["text"],
                      description="Be a Man that women desperately want to be with")
@@ -39,6 +39,6 @@ my_goal = """i know a few characteristic that i want to have a man (confidence, 
 there are so many area that im inadequate, and there is a girl that i could ask out but if i do i might or not slow me down toward 
 my goal. i dont know what other characteristic to be a man, women desperately want to be with and i feel it take forever to be that person"""
 
-skill = get_skill("be_a_man")
+skill = get_skill("be_a_man_skill")
 result = skill.execute(task={"text": my_goal}, dry_run= False, env = None)
 print(result)
