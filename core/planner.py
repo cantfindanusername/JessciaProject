@@ -3,10 +3,10 @@ import random
 import json
 from typing import Any, Optional, Dict, List, Tuple
 
-from .dna import JessicaDNA
-from .htn_methods import  ProofStep, find_methods, Method
-from .llm_client import decompose_goal_with_llm
-from .plan_types import Plan, Step, PlanId, StepId, AcceptanceCriteria, Dependencies, BudgetCaps
+from core.dna import JessicaDNA
+from core.htn_methods import  ProofStep, find_methods, Method
+from core.llm_client import decompose_goal_with_llm
+from core.plan_types import Plan, Step, PlanId, StepId, AcceptanceCriteria, Dependencies, BudgetCaps
 from skills.registry import all_skills
 
 def _stable_hash(text: str) -> str:
@@ -141,11 +141,3 @@ def make_plan_htn(goal: str,
                 seed= seed,
                 steps = tuple(steps),
                 caps= budget_caps), proof
-
-goal = "cook healthy dinner"
-context = {"skill_level": "beginner", "time": 30}
-dna = JessicaDNA()
-
-plan, proof = make_plan_htn(goal, context, dna, seed=42)
-print([s.inputs_ref[0] for s in plan.steps])
-print(proof)

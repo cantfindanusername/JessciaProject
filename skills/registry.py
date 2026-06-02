@@ -1,5 +1,5 @@
 from typing import Dict
-from .abi import Skill
+from skills.abi import Skill
 
 
 _registry: Dict[str, Skill] = {}
@@ -18,3 +18,4 @@ def get_skill(name: str) -> Skill:
 
 def all_skills() -> Dict[str, Skill]:
     return dict(_registry)
+
