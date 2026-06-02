@@ -7,10 +7,24 @@ from .dna import JessicaDNA
 from .htn_methods import  ProofStep, find_methods, Method
 from .llm_client import decompose_goal_with_llm
 from .plan_types import Plan, Step, PlanId, StepId, AcceptanceCriteria, Dependencies, BudgetCaps
-
+from skills.registry import all_skills
 
 def _stable_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
+def _select_skill(task: str, dna: JessicaDNA) -> str:
+    registered = all_skills()
+
+    if task in registered:
+        return task
+
+    for skill_name in dna.skills:
+        if skill_name in registered:
+            return skill_name
+
+    return dna.skills[0]
+
 
 def primitive_to_step(task: str,
                       step_index: int,
@@ -21,8 +35,7 @@ def primitive_to_step(task: str,
 
     id = StepId(f"step_{step_index + 1}")
 
-    skills = dna.skills
-    skill = skills[0]
+    skill = _select_skill(task, dna)
 
     idempotency_key = f"{plan_id}:{id}:{seed}"
 

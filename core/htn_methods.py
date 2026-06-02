@@ -43,7 +43,7 @@ learn_ai_method = Method(name= "learn_ai_method",
 be_a_better_man_method = Method(name= "be_a_better_man_method",
                          goal_pattern= r"identity|confident|be.*man|better man|proud",
                          preconditions= {},
-                         sub_task= ("be_a_man_skill_task",),
+                         sub_task= ("be_a_man_skill",),
                          priority= 1)
 
 METHOD_REGISTRY: Dict[str, Method] = {}
