@@ -1,3 +1,7 @@
+import importlib
+import pkgutil
+import skills.skills as skills_pkg
+
 from typing import Dict
 from skills.abi import Skill
 
@@ -19,3 +23,7 @@ def get_skill(name: str) -> Skill:
 def all_skills() -> Dict[str, Skill]:
     return dict(_registry)
 
+
+def load_all_skills() -> None:
+    for _, module_name, _ in pkgutil.iter_modules(skills_pkg.__path__):
+        importlib.import_module(f"skills.skills.{module_name}")
