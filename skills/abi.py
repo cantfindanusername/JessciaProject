@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, Dict, Any, List
+from typing import Protocol, Dict, Any, List, Tuple
 
 @dataclass(frozen=True)
 class SkillSpec:
@@ -7,6 +7,7 @@ class SkillSpec:
     version: str
     supported_task_types: List[str]
     description: str = ""
+    example_goals: Tuple[str,...] = ()
 
 class Skill(Protocol):
     name: str

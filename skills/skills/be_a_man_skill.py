@@ -10,7 +10,12 @@ class BeAManSkill:
     spec = SkillSpec(name="be_a_man_skill",
                      version="1.0",
                      supported_task_types= ["text"],
-                     description="Be a Man that women desperately want to be with")
+                     description="Build confident, identity and become a man you respect",
+                     example_goals=("become more confident",
+                                    "become a better man",
+                                    "improve my identity",
+                                    "become someone i respect",
+                                    "build self discipline"))
 
     def supports(self, task_type: str) -> bool:
         return str(task_type) in [t for t in self.spec.supported_task_types]
